@@ -135,6 +135,15 @@ These results demonstrate the potential benefits of GPU parallelism for large-sc
 
 ![Thrust Total Pipeline](Screenshots/05_Thrust_Total_Pipeline.png)
 
+
+## Performance Graphs
+
+### GPU Kernel Performance
+![GPU Kernel Performance](Graphs/gpu_kernel_performance.png)
+
+### Total Pipeline Performance
+![Total Pipeline Performance](Graphs/total_pipeline_performance.png)
+
 ## Project Structure
 
 ```text
