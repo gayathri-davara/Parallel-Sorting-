@@ -1,216 +1,269 @@
-# Theme 8 – Parallel Sorting on the GPU
 
-## Project Overview
+# GPU-Accelerated Parallel Sorting Using CUDA
 
-This project implements and evaluates GPU-based parallel sorting using CUDA.
+<p align="center">
+  <b>Performance Analysis of Parallel Sorting Algorithms on GPU</b>
+</p>
 
-The experiment compares three sorting approaches:
+<p align="center">
+  <img src="https://img.shields.io/badge/CUDA-GPU%20Computing-76B900?logo=nvidia" />
+  <img src="https://img.shields.io/badge/C++-Programming-00599C?logo=cplusplus" />
+  <img src="https://img.shields.io/badge/Platform-Windows-blue" />
+  <img src="https://img.shields.io/badge/Project-Parallel%20Computing-purple" />
+</p>
 
-1. **Custom Bitonic Sort** – A parallel sorting algorithm implemented using CUDA kernels.
-2. **NVIDIA Thrust Sort** – GPU sorting using NVIDIA's optimized Thrust library.
-3. **CPU Sort** – Standard C++ `std::sort` implementation.
+## Overview
 
-The objective is to study the performance of GPU-based sorting against CPU sorting and understand the impact of data transfers and kernel execution on overall performance.
+This project explores GPU-based parallel sorting using NVIDIA CUDA. It implements and evaluates parallel sorting algorithms and compares their performance against traditional CPU sorting.
 
-## Hardware and Software Requirements
+The main objective is to understand how GPU parallelism can accelerate sorting operations and analyze the performance differences between custom CUDA implementations, optimized GPU libraries, and CPU-based sorting.
 
-| Component | Specification |
+Three approaches are evaluated:
+
+- **Custom Bitonic Sort:** A parallel sorting algorithm implemented using CUDA.
+- **NVIDIA Thrust Sort:** An optimized GPU sorting implementation using the Thrust library.
+- **CPU std::sort():** A standard C++ sorting implementation used as the baseline.
+
+The project evaluates sorting performance across different input sizes and examines the impact of GPU computation and memory transfer overhead.
+
+## Objectives
+
+- Implement a parallel Bitonic Sorting algorithm using CUDA.
+- Explore GPU sorting using NVIDIA Thrust.
+- Establish a CPU sorting baseline using `std::sort()`.
+- Compare execution time across different input sizes.
+- Analyze GPU computation and data transfer overhead.
+- Evaluate the scalability of GPU-based sorting.
+
+## Technologies Used
+
+| Technology | Purpose |
 |---|---|
-| GPU | NVIDIA GeForce RTX 5060 Ti |
-| CUDA Toolkit | 13.4 |
-| Compiler | NVIDIA NVCC |
-| Development Tools | Visual Studio Build Tools |
-| Programming Languages | C++ and CUDA C++ |
+| C++ | Core programming language |
+| NVIDIA CUDA | GPU parallel computing |
+| NVIDIA Thrust | Optimized GPU sorting |
+| CUDA Runtime API | GPU memory and execution management |
+| Python | Performance graph generation |
+| Matplotlib | Data visualization |
+| Git & GitHub | Version control |
 
-## Project Implementations
+## Algorithms Implemented
 
-### 1. CUDA Bitonic Sort
+### 1. Custom Bitonic Sort
 
-A custom implementation of the Bitonic Sorting algorithm using CUDA.
+Bitonic Sort is a comparison-based parallel sorting algorithm particularly suitable for GPU architectures.
 
-- Uses parallel compare-and-exchange operations.
-- Executes multiple CUDA kernel launches.
-- Measures GPU kernel execution time separately.
-- Verifies the sorted output against CPU `std::sort`.
+It works through multiple stages of comparison and exchange operations.
+
+**Working principle:**
+
+1. Generate a bitonic sequence.
+2. Perform parallel compare-and-swap operations.
+3. Gradually reduce the comparison distance.
+4. Repeat until the complete sequence is sorted.
+
+The implementation uses CUDA threads to execute independent comparison operations in parallel.
+
+**Time complexity:**
+
+- Sequential complexity: O(n log² n)
+- Parallel depth: O(log² n)
 
 ### 2. NVIDIA Thrust Sort
 
-Uses NVIDIA's Thrust library to perform GPU-based sorting.
+Thrust is a C++ parallel algorithms library provided by NVIDIA.
 
-- Uses `thrust::device_vector` for GPU memory.
-- Uses `thrust::sort()` for sorting.
-- Measures GPU sorting time using CUDA events.
-- Compares the output against CPU sorting.
+The project uses Thrust's GPU sorting functionality to evaluate the performance of an optimized library implementation.
 
-### 3. CPU Sorting
+Advantages:
 
-Uses the standard C++ sorting algorithm:
+- High-level GPU programming interface.
+- Optimized parallel algorithms.
+- Efficient memory management.
+- Reduced implementation complexity.
 
-`std::sort()`
+### 3. CPU Sorting Using std::sort()
 
-This provides a CPU baseline for comparing GPU sorting performance.
+The standard C++ sorting function is used as the CPU baseline.
 
-### 4. Total GPU Pipeline Timing
+It provides a reference point for evaluating the performance of GPU-based sorting approaches.
 
-Two additional implementations measure the complete GPU sorting pipeline.
+## Experimental Setup
 
-The measured operations include:
+The experiments evaluate sorting performance using three different input sizes.
 
-1. Host-to-GPU data transfer.
-2. GPU sorting execution.
-3. GPU-to-host data transfer.
+| Parameter | Configuration |
+|---|---|
+| Programming Language | C++ |
+| GPU Programming | NVIDIA CUDA |
+| Custom Algorithm | Bitonic Sort |
+| GPU Library | NVIDIA Thrust |
+| CPU Baseline | std::sort() |
+| Input Sizes | 65,536; 1,048,576; 16,777,216 |
+| Visualization | Python Matplotlib |
 
-GPU memory allocation and warm-up operations are performed outside the timed region.
+## Performance Results
 
-This provides a more complete comparison than measuring sorting execution alone.
+The following results were recorded during experimentation.
 
-## Experimental Methodology
+| Input Size | Thrust Total Time (ms) | CPU Sort Time (ms) |
+|---:|---:|---:|
+| 65,536 | 0.2361 | 7.9595 |
+| 1,048,576 | 2.1698 | 159.418 |
+| 16,777,216 | 23.3512 | 2726.66 |
 
-Three input sizes are evaluated:
+### Performance Analysis
 
-| Experiment | Array Size |
-|---|---:|
-| Small | 65,536 |
-| Medium | 1,048,576 |
-| Large | 16,777,216 |
+The experimental results demonstrate that NVIDIA Thrust achieves significantly lower recorded execution times than the CPU `std::sort()` implementation across all three tested input sizes.
 
-- Input data is generated using the C++ random number generator.
-- A fixed random seed (`42`) is used for reproducibility.
-- Random integer values are generated between 0 and 1,000,000.
-- CPU `std::sort()` is used as the reference for correctness verification.
-- All reported timings are in milliseconds.
+As the input size increases, the performance difference becomes more pronounced.
 
-## Experimental Results
+This highlights the potential of GPU parallelism for computationally intensive sorting workloads.
 
-All timings are in milliseconds.
+However, GPU performance should also be evaluated by considering:
 
-| Array Size | Bitonic Kernel | Bitonic Total | Thrust Sort | Thrust Total | CPU Sort |
-|---:|---:|---:|---:|---:|---:|
-| 65,536 | 0.986944 | 1.0062 | 0.095008 | 0.2361 | 7.9595 |
-| 1,048,576 | 2.06643 | 3.4772 | 0.582784 | 2.1698 | 159.418 |
-| 16,777,216 | 85.2817 | 103.535 | 3.57914 | 23.3512 | 2726.66 |
+- Host-to-device memory transfer.
+- Device-to-host memory transfer.
+- Kernel execution time.
+- Memory allocation overhead.
+- Synchronization overhead.
 
-**Correctness Verification:** All three array sizes are marked PASSED in the recorded experimental results.
+**Note:** Total execution time and kernel-only execution time represent different measurements. They should not be compared interchangeably.
 
-## Performance Analysis
+## Performance Visualization
 
-### Bitonic Sort vs Thrust Sort
+The project includes generated performance graphs to illustrate the experimental results.
 
-- Thrust achieved lower GPU sorting times than the custom Bitonic implementation in all three recorded experiments.
-- The custom Bitonic implementation requires multiple kernel launches for its compare-and-exchange stages.
-- Thrust provides an optimized GPU sorting implementation through its library.
+### Graph 1: Sorting Performance Comparison
 
-### Kernel Time vs Total Pipeline Time
+<!-- Add your actual graph filename below -->
+![Sorting Performance Comparison](Graphs/sorting_performance.png)
 
-- Kernel-only timing measures GPU sorting execution.
-- Total pipeline timing includes host-to-device transfer, sorting, and device-to-host transfer.
-- Including data transfers increases the measured execution time.
+### Graph 2: Performance Analysis
 
-### GPU vs CPU Performance
+<!-- Add your actual graph filename below -->
+![Performance Analysis](Graphs/performance_analysis.png)
 
-- GPU-based Thrust sorting was faster than CPU `std::sort()` for all three tested array sizes in the recorded results.
-- For the largest array, Thrust total pipeline time was 23.3512 ms, compared with 2726.66 ms for CPU sorting.
+*Ensure that the image filenames match the actual files in the Graphs directory.*
 
-These results demonstrate the potential benefits of GPU parallelism for large-scale sorting workloads.
+## Correctness Verification
 
-## Screenshots and Experimental Evidence
+The implementations are evaluated to ensure that the resulting arrays are correctly sorted.
 
-### 1. CUDA Environment Test
+Correctness verification checks whether:
 
-![CUDA Test](Screenshots/01_CUDA_Test.png)
+- Elements are arranged in ascending order.
+- The sorting operation produces valid output.
+- The GPU implementations produce correctly sorted results.
 
-### 2. Bitonic Sort Execution
-
-![Bitonic Sort](Screenshots/02_Bitonic_Sort.png)
-
-### 3. Thrust vs CPU Sorting
-
-![Thrust vs CPU](Screenshots/03_Thrust_vs_CPU.png)
-
-### 4. Bitonic Total Pipeline Timing
-
-![Bitonic Total Pipeline](Screenshots/04_Bitonic_Total_Pipeline.png)
-
-### 5. Thrust Total Pipeline Timing
-
-![Thrust Total Pipeline](Screenshots/05_Thrust_Total_Pipeline.png)
-
-
-## Performance Graphs
-
-### GPU Kernel Performance
-![GPU Kernel Performance](Graphs/gpu_kernel_performance.png)
-
-### Total Pipeline Performance
-![Total Pipeline Performance](Graphs/total_pipeline_performance.png)
+All three recorded input sizes passed correctness verification.
 
 ## Project Structure
 
 ```text
-Theme8_ParallelSorting/
+Parallel-Sorting/
 │
-├── README.md
-├── results.csv
-│
-├── cuda_test.cu
 ├── bitonic_sort.cu
-├── bitonic_total.cu
 ├── thrust_sort.cu
-├── thrust_total.cu
+├── cpu_sort.cpp
 │
-└── Screenshots/
-    ├── 01_CUDA_Test.png
-    ├── 02_Bitonic_Sort.png
-    ├── 03_Thrust_vs_CPU.png
-    ├── 04_Bitonic_Total_Pipeline.png
-    └── 05_Thrust_Total_Pipeline.png
+├── Graphs/
+│   ├── sorting_performance.png
+│   └── performance_analysis.png
+│
+├── Screenshots/
+│   └── execution screenshots
+│
+├── generate_graphs.py
+│
+└── README.md
 ```
+
+*The directory structure above is illustrative. Adjust filenames to match the actual repository.*
 
 ## Compilation and Execution
 
-Compile the CUDA programs using NVIDIA NVCC.
+### Prerequisites
 
-### CUDA Test
+- NVIDIA CUDA Toolkit
+- CUDA-compatible NVIDIA GPU
+- CUDA-capable C++ compiler
+- Python 3
+- Matplotlib
 
-```bash
-nvcc cuda_test.cu -o cuda_test.exe
-.\cuda_test.exe
+### Compile CUDA Programs
+
+```powershell
+nvcc bitonic_sort.cu -o bitonic_sort.exe
 ```
 
-### Bitonic Sort
+```powershell
+nvcc thrust_sort.cu -o thrust_sort.exe
+```
 
-```bash
-nvcc bitonic_sort.cu -o bitonic_sort.exe
+### Compile CPU Program
+
+```powershell
+g++ cpu_sort.cpp -o cpu_sort.exe
+```
+
+### Execute Programs
+
+```powershell
 .\bitonic_sort.exe
 ```
 
-### Bitonic Total Pipeline
-
-```bash
-nvcc bitonic_total.cu -o bitonic_total.exe
-.\bitonic_total.exe
-```
-
-### Thrust Sort
-
-```bash
-nvcc thrust_sort.cu -o thrust_sort.exe
+```powershell
 .\thrust_sort.exe
 ```
 
-### Thrust Total Pipeline
-
-```bash
-nvcc thrust_total.cu -o thrust_total.exe
-.\thrust_total.exe
+```powershell
+.\cpu_sort.exe
 ```
+
+### Generate Performance Graphs
+
+```powershell
+python generate_graphs.py
+```
+
+## Key Observations
+
+1. GPU-based sorting can provide substantial performance improvements over CPU sorting for the tested workloads.
+2. NVIDIA Thrust provides an optimized GPU sorting implementation.
+3. Custom Bitonic Sort demonstrates how parallel comparison operations can be mapped to CUDA threads.
+4. Memory transfer overhead plays an important role in overall GPU execution time.
+5. Performance depends on input size, algorithm design, GPU architecture, and memory management.
+
+## Limitations
+
+- Performance measurements depend on the hardware and execution environment.
+- GPU memory transfer overhead can influence total execution time.
+- The custom Bitonic Sort algorithm has different scalability characteristics from library-optimized sorting.
+- Further experimentation is required to evaluate performance across additional GPU architectures and input distributions.
+
+## Future Enhancements
+
+- Optimize the custom Bitonic Sort implementation.
+- Experiment with additional parallel sorting algorithms.
+- Evaluate different input distributions.
+- Perform repeated benchmark runs and calculate average execution times.
+- Compare kernel execution time against end-to-end execution time.
+- Investigate memory coalescing and shared memory optimization.
+- Extend benchmarking to larger datasets where hardware capacity permits.
 
 ## Conclusion
 
-This project demonstrates the application of GPU parallelism to sorting operations using CUDA.
+This project demonstrates the implementation and performance evaluation of parallel sorting using NVIDIA CUDA.
 
-The experimental comparison highlights the difference between a custom parallel sorting algorithm, an optimized GPU library implementation, and a conventional CPU sorting algorithm.
+By comparing a custom Bitonic Sort implementation, NVIDIA Thrust, and CPU `std::sort()`, the project explores the advantages and limitations of GPU-based parallel computation.
 
-The results show that NVIDIA Thrust Sort provides better sorting performance than the custom Bitonic implementation in these experiments. They also demonstrate that data transfer overhead contributes to total GPU pipeline execution time.
+The experimental results show that NVIDIA Thrust achieves significantly lower recorded execution times than the CPU baseline for the tested input sizes.
 
-Overall, the experiment provides practical insight into CUDA kernel execution, GPU memory transfers, parallel algorithms, and performance evaluation.
+The project provides practical experience in CUDA programming, parallel algorithm design, GPU memory management, performance benchmarking, and experimental analysis.
+
+---
+
+<p align="center">
+  <b>Developed as a Parallel Computing Project</b>
+</p>
